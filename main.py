@@ -1,1 +1,1 @@
-print ("Press F to respect")
+print("Press F to pay respect")
