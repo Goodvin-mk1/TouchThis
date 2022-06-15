@@ -1,2 +1,1 @@
-# TouchThis
-## Welcome Git
+# Welcome Git
