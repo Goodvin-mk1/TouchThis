@@ -1,5 +1,4 @@
 # Отформатированное приветственное сообщение
-#
 print("Enter your name, age and city: ")
 name = input("Name: ").capitalize()
 age = input("Age: ")
