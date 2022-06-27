@@ -1,4 +1,5 @@
 # Перевод десятичного числа в двоичное и обратно
+
 num = int(input("Enter number to converte: "))
 
 def to_binary(n):
