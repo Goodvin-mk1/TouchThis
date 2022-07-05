@@ -2,6 +2,7 @@
 
 num = int(input("Enter number to converte: "))
 
+
 def to_binary(n):
     binary_num = ''
     while n > 0:
