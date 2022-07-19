@@ -1,6 +1,6 @@
 import sqlite3
-from schemes.categories import CategoryScheme
-from schemes.categories import CategoryInDBScheme
+from sql_schemes.categories import CategoryScheme
+from sql_schemes.categories import CategoryInDBScheme
 
 conn = sqlite3.connect("shop.db")
 cur = conn.cursor()
