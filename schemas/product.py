@@ -7,8 +7,7 @@ class ProductSchema(BaseModel):
     total: float = Field(gt=0)
     is_published: bool = Field(default=False)
     name: str = Field(max_length=20,
-                      min_length=1,
-                      unique_items=True)
+                      min_length=1)
 
 
 class ProductInDBSchema(ProductSchema):

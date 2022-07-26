@@ -1,0 +1,6 @@
+{
+  "DATABASE": {
+    "URL": "postgresql://iamadmin:iamadmin@localhost:5432/online_shop",
+    "ASYNC_URL": "postgresql+asyncpg://iamadmin:iamadmin@localhost:5432/online_shop"
+  }
+}
