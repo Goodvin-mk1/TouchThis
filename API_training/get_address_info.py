@@ -39,4 +39,3 @@ class NominatimAPI:
         # if response.status == 200:
         pprint(await response.json())
         return await response.json()
-
