@@ -1,19 +1,9 @@
-import asyncio
+from fastapi import FastAPI
 
-from schemas import *
-from crud import *
+from endpoints.v1 import api_v1_router
 
+app = FastAPI(
+    title="Online shop",
+)
+app.include_router(api_v1_router)
 
-async def start():
-    await BotUserCRUD.add(bot_user=BotUserSchema(language_id=1))
-    print(await BotUserCRUD.get_all())
-
-
-# async def main():
-#     loop = asyncio.get_running_loop()
-#     task = loop.create_task(start())
-#     await task
-
-
-if __name__ == '__main__':
-    asyncio.run(start())

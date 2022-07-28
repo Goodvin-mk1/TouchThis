@@ -10,3 +10,7 @@ class CategorySchema(BaseModel):
 
 class CategoryInDBSchema(CategorySchema):
     id: int = Field(ge=1)
+
+
+class CategoryInDBSchemaExtended(CategoryInDBSchema):
+    sub_categories: list = []

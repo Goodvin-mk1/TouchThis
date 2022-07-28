@@ -2,8 +2,9 @@ from sqlalchemy import select, update, delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models import Category, create_async_session
+from models import Category, create_async_session, Product
 from schemas.category import *
+from schemas.product import ProductInDBSchema
 
 
 class CategoryCRUD:
@@ -37,10 +38,18 @@ class CategoryCRUD:
 
     @staticmethod
     @create_async_session
-    async def get_all(session: AsyncSession = None) -> list[CategoryInDBSchema]:
-        categories = await session.execute(
-            select(Category)
-        )
+    async def get_all(parent_id: int = None, session: AsyncSession = None) -> list[CategoryInDBSchema]:
+        if parent_id:
+            categories = await session.execute(
+                select(Category)
+                .order_by(Category.id)
+                .where(Category.parent_id == parent_id)
+            )
+        else:
+            categories = await session.execute(
+                select(Category)
+                .order_by(Category.id)
+            )
         return [CategoryInDBSchema(**category[0].__dict__) for category in categories]
 
     @staticmethod
@@ -60,3 +69,23 @@ class CategoryCRUD:
             )
         )
         await session.commit()
+
+    @staticmethod
+    @create_async_session
+    async def get_products_by_category_id(
+            category_id: int = None,
+            session: AsyncSession = None
+    ) -> list[tuple[CategoryInDBSchema, ProductInDBSchema]] | None:
+        if category_id:
+            response = await session.execute(
+                select(Category, Product)
+                .join(Product, Category.id == Product.category_id)
+                .where(Category.id == category_id)
+            )
+            return [
+                (
+                    CategoryInDBSchema(**res[0].__dict__),
+                    ProductInDBSchema(**res[1].__dict__)
+                ) for res in response
+            ]
+
