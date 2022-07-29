@@ -13,4 +13,4 @@ class CategoryInDBSchema(CategorySchema):
 
 
 class CategoryInDBSchemaExtended(CategoryInDBSchema):
-    sub_categories: list = []
+    child_categories: list = []

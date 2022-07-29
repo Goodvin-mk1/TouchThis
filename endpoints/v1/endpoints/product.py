@@ -5,7 +5,8 @@ from crud import ProductCRUD
 
 
 product_router = APIRouter(
-    prefix="/product"
+    prefix="/product",
+    tags=["Products"]
 )
 
 

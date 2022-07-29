@@ -1,11 +1,12 @@
 from fastapi import APIRouter, HTTPException
 
-from schemas import CategorySchema, CategoryInDBSchema, CategoryInDBSchemaExtended
+from schemas import CategorySchema, CategoryInDBSchema, CategoryInDBSchemaExtended, ProductInDBSchema
 from crud import CategoryCRUD
 
 
 category_router = APIRouter(
-    prefix="/category"
+    prefix="/category",
+    tags=["Categories"]
 )
 
 
@@ -28,40 +29,43 @@ async def get_category(category_id: int):
 @category_router.get("/all", response_model=list[CategoryInDBSchemaExtended])
 async def get_all_categories(parent_id: int = None):
     categories = await CategoryCRUD.get_all(parent_id=parent_id)
-    extended_categories = [CategoryInDBSchemaExtended(**category.__dict__) for category in categories]
-    tree_categories = await get_root_categories(extended_categories)
-    if tree_categories:
-        return tree_categories
+    if parent_id is None:
+        tree_view_categories = await get_tree_view_categories(categories)
+        if tree_view_categories:
+            return tree_view_categories
+    else:
+        if categories:
+            return categories
     raise HTTPException(status_code=404, detail="categories not found")
 
 
-async def get_root_categories(extended_categories: list[CategoryInDBSchemaExtended]) -> list[CategoryInDBSchemaExtended]:
+async def get_tree_view_categories(categories: list[CategoryInDBSchema]) -> list[CategoryInDBSchemaExtended]:
+    extended_categories = [CategoryInDBSchemaExtended(**category.__dict__) for category in categories]
+
+    base_categories = [extended_categories.pop(extended_categories.index(category))
+                       for category in extended_categories if category.parent_id is None]
+
     for category in extended_categories:
         if category.parent_id is not None:
-            await find_child(extended_categories, category.parent_id)
+            await find_child(base_categories, category)
 
-    return extended_categories
-
-
-async def find_child(categories: list[CategoryInDBSchemaExtended], parent_id: int):
-    for category in categories:
-        if category.id == parent_id:
-            sub_categories = [sub for sub in categories if sub.parent_id == parent_id]
-            if len(sub_categories) != 0:
-                for sub_category in sub_categories:
-                    await find_child(sub_categories, sub_category.parent_id)
-                    #if sub_category.parent_id is None:
-                    #categories.remove(sub_category)
-            category.sub_categories.append(sub_categories)
-            for sub_category in category.sub_categories:
-                for cat in categories:
-                    if cat.parent_id == sub_category.parent_id:
-                        categories.remove(cat)
+    return base_categories
 
 
-@category_router.get("/get/products", response_model=list[CategoryInDBSchema])
+async def find_child(base_categories: list[CategoryInDBSchemaExtended], child_category: CategoryInDBSchemaExtended):
+    for base_category in base_categories:
+        if base_category.id == child_category.parent_id:
+            base_category.child_categories.append(child_category)
+        elif base_category.child_categories:
+            await find_child(base_category.child_categories, child_category)
+
+
+@category_router.get("/get/products", response_model=list[tuple[CategoryInDBSchema, ProductInDBSchema]])
 async def get_products_by_category_id(category_id: int):
+    print(category_id)
     category_with_products = await CategoryCRUD.get_products_by_category_id(category_id=category_id)
+    print(category_with_products)
+
     if category_with_products:
         return category_with_products
     raise HTTPException(status_code=404, detail="category not found")
