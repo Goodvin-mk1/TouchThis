@@ -1,12 +1,12 @@
 from fastapi import APIRouter, HTTPException
 
-from schemas import ProductSchema, ProductInDBSchema
+from schemas import ProductSchema, ProductInDBSchema, CategoryInDBSchema
 from crud import ProductCRUD
 
 
 product_router = APIRouter(
     prefix="/product",
-    tags=["Products"]
+    tags=["Product"]
 )
 
 
@@ -32,6 +32,14 @@ async def get_all_products():
     if products:
         return products
     raise HTTPException(status_code=404, detail="products not found")
+
+
+@product_router.get("/category", response_model=tuple[ProductInDBSchema, CategoryInDBSchema])
+async def get_category_of_product(product_id: int):
+    category_of_product = await ProductCRUD.get_category_of_product(product_id=product_id)
+    if category_of_product:
+        return category_of_product
+    raise HTTPException(status_code=404, detail="product not found")
 
 
 @product_router.put("/update", status_code=200)

@@ -3,7 +3,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-from models import Product, create_async_session
+from models import Product, create_async_session, Category
+from schemas import CategoryInDBSchema
 from schemas.product import *
 
 
@@ -43,6 +44,22 @@ class ProductCRUD:
             select(Product)
         )
         return [ProductInDBSchema(**product[0].__dict__) for product in products]
+
+    @staticmethod
+    @create_async_session
+    async def get_category_of_product(
+            product_id: int = None, session: AsyncSession = None
+    ) -> tuple[ProductInDBSchema, CategoryInDBSchema]:
+        if product_id:
+            response = await session.execute(
+                select(Product, Category)
+                .join(Product, Category.id == Product.category_id)
+                .where(Product.id == product_id))
+            response = response.first()
+            return (
+                ProductInDBSchema(**response[0].__dict__),
+                CategoryInDBSchema(**response[1].__dict__)
+            )
 
     @staticmethod
     @create_async_session

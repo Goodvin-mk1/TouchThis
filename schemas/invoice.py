@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 class InvoiceSchema(BaseModel):
     bot_user_id: int = Field(default=None, ge=1)
-    date_create: float = Field(default=datetime.now())
+    date_create: datetime = Field(default=datetime.now())
     status_id: int = Field(default=None, ge=1)
 
 

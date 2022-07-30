@@ -6,7 +6,7 @@ from crud import CategoryCRUD
 
 category_router = APIRouter(
     prefix="/category",
-    tags=["Categories"]
+    tags=["Category"]
 )
 
 
