@@ -12,7 +12,10 @@ class AuthHelper:
 
     @staticmethod
     async def validate_user(request: Request):
-        access_token = request.headers.get("Authorization")
+        access_token: str = request.headers.get("Authorization")
+        if not access_token.startswith("Bearer "):
+            return False
+        access_token = access_token.replace("Bearer ", "")
         if not access_token:
             return False
         try:
