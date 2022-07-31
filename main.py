@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 
+from endpoints.auth.api import auth_router
 from endpoints.v1 import api_v1_router
 
 
@@ -35,6 +36,10 @@ tags = [
     {
         "name": "Status",
         "description": "Endpoints for status"
+    },
+    {
+        "name": "User",
+        "description": "Endpoints for user"
     }
 ]
 app = FastAPI(
@@ -42,3 +47,4 @@ app = FastAPI(
     openapi_tags=tags
 )
 app.include_router(api_v1_router)
+app.include_router(auth_router)

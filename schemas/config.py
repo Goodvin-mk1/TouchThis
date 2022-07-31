@@ -1,4 +1,4 @@
-from pydantic import BaseModel, PostgresDsn
+from pydantic import BaseModel, PostgresDsn, Field
 
 
 class DatabaseSchema(BaseModel):
@@ -6,5 +6,12 @@ class DatabaseSchema(BaseModel):
     ASYNC_URL: PostgresDsn
 
 
+class AuthSchema(BaseModel):
+    SECRET_KEY: str
+    ALGORITHM: str = Field(default="HS256")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=60)
+
+
 class ConfigSchema(BaseModel):
     DATABASE: DatabaseSchema
+    AUTH: AuthSchema

@@ -2,5 +2,10 @@
   "DATABASE": {
     "URL": "postgresql://iamadmin:iamadmin@localhost:5432/online_shop",
     "ASYNC_URL": "postgresql+asyncpg://iamadmin:iamadmin@localhost:5432/online_shop"
+  },
+  "AUTH": {
+    "SECRET_KEY": "fe3a31a38f32149c8c465f3dd77981f292a1dca3c3af87b87edb413698291bfe",
+    "ALGORITHM": "HS256",
+    "ACCESS_TOKEN_EXPIRE_MINUTES": 60
   }
 }

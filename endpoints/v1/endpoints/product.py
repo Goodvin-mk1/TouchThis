@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request, Depends
 
+from endpoints.auth.user_validate import AuthHelper
 from schemas import ProductSchema, ProductInDBSchema, CategoryInDBSchema
 from crud import ProductCRUD
 
@@ -11,11 +12,14 @@ product_router = APIRouter(
 
 
 @product_router.post("/add", status_code=201)
-async def add_product(product: ProductSchema):
-    product = await ProductCRUD.add(product=product)
-    if product:
-        return product.id
-    raise HTTPException(status_code=409, detail="product is already exists")
+async def add_product(product: ProductSchema, request: Request = Depends(AuthHelper.validate_user)):
+    if request:
+        product = await ProductCRUD.add(product=product)
+        if product:
+            return product.id
+        raise HTTPException(status_code=409, detail="product is already exists")
+    else:
+        raise HTTPException(status_code=401, detail="Unauthorized")
 
 
 @product_router.get("/get", response_model=ProductInDBSchema)
@@ -43,19 +47,23 @@ async def get_category_of_product(product_id: int):
 
 
 @product_router.put("/update", status_code=200)
-async def update_product(product: ProductInDBSchema):
-    existing_product = await ProductCRUD.get(product_id=product.id)
-    if not existing_product:
-        raise HTTPException(status_code=404, detail="product not found")
-    await ProductCRUD.update(product=product)
-    return product
+async def update_product(product: ProductInDBSchema, request: Request = Depends(AuthHelper.validate_user)):
+    if request:
+        existing_product = await ProductCRUD.get(product_id=product.id)
+        if not existing_product:
+            raise HTTPException(status_code=404, detail="product not found")
+        await ProductCRUD.update(product=product)
+        return product
+    else:
+        raise HTTPException(status_code=401, detail="Unauthorized")
 
 
 @product_router.delete("/del", status_code=204)
-async def delete_product(product_id: int):
-    product = await ProductCRUD.get(product_id=product_id)
-    if not product:
-        raise HTTPException(status_code=404, detail="product not found")
-    await ProductCRUD.delete(product_id=product_id)
-
-
+async def delete_product(product_id: int, request: Request = Depends(AuthHelper.validate_user)):
+    if request:
+        product = await ProductCRUD.get(product_id=product_id)
+        if not product:
+            raise HTTPException(status_code=404, detail="product not found")
+        await ProductCRUD.delete(product_id=product_id)
+    else:
+        raise HTTPException(status_code=401, detail="Unauthorized")

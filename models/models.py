@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import (Column, SmallInteger,
                         ForeignKey, VARCHAR,
                         CHAR, DECIMAL,
-                        TIMESTAMP, Boolean)
+                        TIMESTAMP, Boolean, Integer, Text)
 from sqlalchemy.orm import declarative_base
 
 
@@ -79,4 +79,12 @@ class OrderItem(Base):
     order_id = Column(SmallInteger, ForeignKey("orders.id", ondelete="NO ACTION"))
     product_id = Column(SmallInteger, ForeignKey("products.id", ondelete="NO ACTION"))
     total = Column(DECIMAL(7, 2))
+
+
+class User(Base):
+    __tablename__: str = "users"
+
+    id = Column(Integer, primary_key=True)
+    username = Column(VARCHAR(24), unique=True, nullable=False)
+    hashed_password = Column(Text, nullable=False)
 

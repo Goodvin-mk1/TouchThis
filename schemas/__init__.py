@@ -6,5 +6,5 @@ from .order import *
 from .order_item import *
 from .product import *
 from .status import *
-
+from .user import *
 from .config import *

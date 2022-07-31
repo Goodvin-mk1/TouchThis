@@ -6,3 +6,4 @@ from .order import OrderCRUD
 from .order_item import OrderItemCRUD
 from .product import ProductCRUD
 from .status import StatusCRUD
+from .user import UserCRUD

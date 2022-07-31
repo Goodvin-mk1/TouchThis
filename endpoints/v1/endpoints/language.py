@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request, Depends
 
+from endpoints.auth.user_validate import AuthHelper
 from schemas import LanguageSchema, LanguageInDBSchema
 from crud import LanguageCRUD
 
@@ -11,11 +12,14 @@ language_router = APIRouter(
 
 
 @language_router.post("/add", status_code=201)
-async def add_language(language: LanguageSchema):
-    language = await LanguageCRUD.add(language=language)
-    if language:
-        return language.id
-    raise HTTPException(status_code=409, detail="language is already exists")
+async def add_language(language: LanguageSchema, request: Request = Depends(AuthHelper.validate_user)):
+    if request:
+        language = await LanguageCRUD.add(language=language)
+        if language:
+            return language.id
+        raise HTTPException(status_code=409, detail="language is already exists")
+    else:
+        raise HTTPException(status_code=401, detail="Unauthorized")
 
 
 @language_router.get("/get", response_model=LanguageInDBSchema)
@@ -35,17 +39,23 @@ async def get_all_languages():
 
 
 @language_router.put("/update", status_code=200)
-async def update_language(language: LanguageInDBSchema):
-    existing_language = await LanguageCRUD.get(language_id=language.id)
-    if not existing_language:
-        raise HTTPException(status_code=404, detail="language not found")
-    await LanguageCRUD.update(language=language)
-    return language
+async def update_language(language: LanguageInDBSchema, request: Request = Depends(AuthHelper.validate_user)):
+    if request:
+        existing_language = await LanguageCRUD.get(language_id=language.id)
+        if not existing_language:
+            raise HTTPException(status_code=404, detail="language not found")
+        await LanguageCRUD.update(language=language)
+        return language
+    else:
+        raise HTTPException(status_code=401, detail="Unauthorized")
 
 
 @language_router.delete("/del", status_code=204)
-async def delete_language(language_id: int):
-    language = await LanguageCRUD.get(language_id=language_id)
-    if not language:
-        raise HTTPException(status_code=404, detail="language not found")
-    await LanguageCRUD.delete(language_id=language_id)
+async def delete_language(language_id: int, request: Request = Depends(AuthHelper.validate_user)):
+    if request:
+        language = await LanguageCRUD.get(language_id=language_id)
+        if not language:
+            raise HTTPException(status_code=404, detail="language not found")
+        await LanguageCRUD.delete(language_id=language_id)
+    else:
+        raise HTTPException(status_code=401, detail="Unauthorized")

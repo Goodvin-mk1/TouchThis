@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request, Depends
 
+from endpoints.auth.user_validate import AuthHelper
 from schemas import CategorySchema, CategoryInDBSchema, CategoryInDBSchemaExtended, ProductInDBSchema
 from crud import CategoryCRUD
 
@@ -11,11 +12,14 @@ category_router = APIRouter(
 
 
 @category_router.post("/add", status_code=201)
-async def add_category(category: CategorySchema):
-    category = await CategoryCRUD.add(category=category)
-    if category:
-        return category.id
-    raise HTTPException(status_code=409, detail="category is already exists")
+async def add_category(category: CategorySchema, request: Request = Depends(AuthHelper.validate_user)):
+    if request:
+        category = await CategoryCRUD.add(category=category)
+        if category:
+            return category.id
+        raise HTTPException(status_code=409, detail="category is already exists")
+    else:
+        raise HTTPException(status_code=401, detail="Unauthorized")
 
 
 @category_router.get("/get", response_model=CategoryInDBSchema)
@@ -72,19 +76,23 @@ async def get_products_by_category_id(category_id: int):
 
 
 @category_router.put("/update", status_code=200)
-async def update_category(category: CategoryInDBSchema):
-    existing_category = await CategoryCRUD.get(category_id=category.id)
-    if not existing_category:
-        raise HTTPException(status_code=404, detail="category not found")
-    await CategoryCRUD.update(category=category)
-    return category
+async def update_category(category: CategoryInDBSchema, request: Request = Depends(AuthHelper.validate_user)):
+    if request:
+        existing_category = await CategoryCRUD.get(category_id=category.id)
+        if not existing_category:
+            raise HTTPException(status_code=404, detail="category not found")
+        await CategoryCRUD.update(category=category)
+        return category
+    else:
+        raise HTTPException(status_code=401, detail="Unauthorized")
 
 
 @category_router.delete("/del", status_code=204)
-async def delete_category(category_id: int):
-    category = await CategoryCRUD.get(category_id=category_id)
-    if not category:
-        raise HTTPException(status_code=404, detail="category not found")
-    await CategoryCRUD.delete(category_id=category_id)
-
-
+async def delete_category(category_id: int, request: Request = Depends(AuthHelper.validate_user)):
+    if request:
+        category = await CategoryCRUD.get(category_id=category_id)
+        if not category:
+            raise HTTPException(status_code=404, detail="category not found")
+        await CategoryCRUD.delete(category_id=category_id)
+    else:
+        raise HTTPException(status_code=401, detail="Unauthorized")
