@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Request, Depends
 
-from endpoints.auth.user_validate import AuthHelper
+from endpoints.auth.auth_helper import AuthHelper
 from schemas import CategorySchema, CategoryInDBSchema, CategoryInDBSchemaExtended, ProductInDBSchema
 from crud import CategoryCRUD
 
